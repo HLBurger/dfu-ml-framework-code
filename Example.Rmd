@@ -1,7 +1,10 @@
 ---
 title: "Hello"
 ---
-
+The code below visualizes data:
 ```
-print("Hello")
+library("readxl")
+data <-  read_excel("ImputedDataset.xlsx")
+source("Visuals.R")
+plot <- visualizer()
 ```
