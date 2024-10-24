@@ -5,11 +5,12 @@
 #install the required packages if not yet done
 ########################################################################
 #install.packages('tidyverse')
-#instsall.packages('fastDummies')
+#install.packages('fastDummies')
 #install.packages("smotefamily")
+#install.packages("mice")
 
-url_excelfile <- "C:/Users/hburger/Downloads/Diabetischevoet dummy database.csv"
-Patient_dataset <- read.csv2(url_excelfile)
+path_excelfile <- "Code_Hendrico/Diabetischevoet dummy database.csv"
+Patient_dataset <- read.csv2(path_excelfile)
 IMP <- TRUE
 BAL <- TRUE
 
@@ -17,6 +18,7 @@ library('tidyverse') #for dataset cleaning
 library('fastDummies') #for dummy creation
 library(ggplot2)  #better viz in general
 library(smotefamily)#for smote balancing 
+library(mice)     #for mice imputation
 
 ############################################
 #Performs correctional tests on the data
@@ -99,7 +101,7 @@ Patient_dataset$TexasD <- rowSums(Patient_dataset[,c("D1", "D2", "D3")])
 Patient_dataset[Patient_dataset$Neuroischemic == 1,][,c("Neuropathic", "Ischemic")] <- 1
 
 #Selects significant features
-predictorset <- subset(Patient_dataset, select = c("ï..Ageyears", "Nosmoking",
+predictorset <- subset(Patient_dataset, select = c("Ageyears", "Nosmoking",
                                             "Averagesystolicbloodpressure", "Averagediastolicbloodpressure", 
                                             "AverageO2saturationlevel", "AverageserumHbA1c", "AverageserumHb", "AverageserumeGFR", 
                                             "Woundlocation.Anterior_Tibial_Artery", "Woundlocation.Dorsalis_Pedis", "Woundlocation.Lateral_Calcaneal",
@@ -111,8 +113,8 @@ predictorset <- subset(Patient_dataset, select = c("ï..Ageyears", "Nosmoking",
 
 
 #Performs feature transformation
-max_age <- max(predictorset$ï..Ageyears)
-predictorset$ï..Ageyears <- sqrt(max(predictorset$ï..Ageyears) - predictorset$ï..Ageyears)
+max_age <- max(predictorset$Ageyears)
+predictorset$Ageyears <- sqrt(max(predictorset$Ageyears) - predictorset$Ageyears)
 
 max_02 <- max(predictorset$AverageO2saturationlevel, na.rm = TRUE)
 predictorset$AverageO2saturationlevel <- sqrt(max(predictorset$AverageO2saturationlevel, na.rm = TRUE) - predictorset$AverageO2saturationlevel)
@@ -182,7 +184,7 @@ if (BAL == TRUE){
 }
 
 #export predictorset as a csv file
-directory <- dirname(normalizePath(url_excelfile))
+directory <- dirname(normalizePath(path_excelfile))
 write.csv(predictorset, paste0(directory, "/predictorset.csv"), row.names = FALSE)
 
 
