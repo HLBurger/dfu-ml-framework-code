@@ -6,10 +6,11 @@
 ########################################################################
 #install.packages('tidyverse')
 #install.packages('fastDummies')
+#install.packages('ggplot2')
 #install.packages("smotefamily")
 #install.packages("mice")
 
-path_excelfile <- "Code_Hendrico/Diabetischevoet dummy database.csv"
+path_excelfile <- "diabetic_ulcer_data.csv"
 Patient_dataset <- read.csv2(path_excelfile)
 IMP <- TRUE
 BAL <- TRUE
@@ -17,8 +18,9 @@ BAL <- TRUE
 library('tidyverse') #for dataset cleaning
 library('fastDummies') #for dummy creation
 library(ggplot2)  #better viz in general
-library(smotefamily)#for smote balancing 
+library(smotefamily)#for smote balancing
 library(mice)     #for mice imputation
+library(dplyr)
 
 ############################################
 #Performs correctional tests on the data
@@ -46,7 +48,7 @@ if (!("Levelofreamputation_7" %in% names(Patient_dataset))){
 if (!("Ethnicity_5" %in% names(Patient_dataset))){
 Patient_dataset$Ethnicity_5 <- 0
 }
-#renames columns for convenience 
+#renames columns for convenience
 Patient_dataset <- Patient_dataset %>%
   rename(
     "European" = Ethnicity_1,
@@ -100,17 +102,80 @@ Patient_dataset$TexasD <- rowSums(Patient_dataset[,c("D1", "D2", "D3")])
 
 Patient_dataset[Patient_dataset$Neuroischemic == 1,][,c("Neuropathic", "Ischemic")] <- 1
 
+#Deletes medical specifications on medicin use (to be discussed)
+Patient_dataset <- subset(Patient_dataset, select = -c(DiabetesMedication, Medicationaffectingwoundhealing ))
+
+#Deletes pedal arch (not enough datapoints)
+Patient_dataset <- subset(Patient_dataset, select = -c(PedalArch.Stenose, PedalArch.Open, PedalArch.Occlusie, Patentpedalarch_NA))
+
+#Deletes chkcategorisation (based of AverageserumGFR)
+Patient_dataset <- subset(Patient_dataset, select = -c(Chronickidneydisease, CKD, CKD3a, CKD3b, CKD4, CKD5))
+
+#Deletes TPaff50 (highly correlated with/based off Toepressureaffectedside)
+Patient_dataset <- subset(Patient_dataset, select = -c(TPaff50))
+
+#Deletes HeartFailure (lacking elements and highly correlated with LVEF (Y/N))
+Patient_dataset <- subset(Patient_dataset, select = -c(HeartFailure))
+
+#Deletes LVEF (lacking elements)
+Patient_dataset <- subset(Patient_dataset, select = -c(LVEF))
+
+#Deletes Toepressurecontralateralside (highly correlated with Toepressureaffectedside which had a higher correlation wit Completewoundhealing)
+Patient_dataset <- subset(Patient_dataset, select = -c(Toepressurecontralateralside))
+
+#Deletes Anemia because of high correlation and derived from AverageserumHb
+Patient_dataset <- subset(Patient_dataset, select = -c(Anemia))
+
+#Adds degreeofredareameasurement
+Patient_dataset$Degreeofredareameasurement <- (100 - Patient_dataset$Degreeofnecrotictissuemeasurement - Patient_dataset$Degreeofsloughmeasurement)
+
+############################################
+#Statistical correlation tests
+############################################
+signames <- c()
+chinames <- c()
+cornames <- c()
+for ( i in 1:length(Patient_dataset)) {
+
+  #binary combinations / Tetrachoric correlation / chi squared test
+  if (((max(Patient_dataset[i]) == 1) & n_distinct(Patient_dataset[i]) <= 2) |
+        (is.na(max(Patient_dataset[i])) & (n_distinct(Patient_dataset[i]) <= 3))){
+    
+    chitest <- chisq.test(Patient_dataset$Completewoundhealing, unlist(unname(Patient_dataset[i])))
+    
+    if (chitest["p.value"] < 0.05){
+      print(i)
+      signames <- append(signames, colnames(Patient_dataset[i]))
+      chinames <- append(chinames, colnames(Patient_dataset[i]))
+    }
+
+  }
+  #numerical and binary combination / Pearson coefficient correlation 
+  else {
+    cor <- oneway.test(unlist(unname(Patient_dataset[i])) ~ Patient_dataset$Completewoundhealing)
+    if (cor["p.value"] < 0.05 & n_distinct(Patient_dataset[i]) > 1){
+      print(i)
+      signames <- append(signames, colnames(Patient_dataset[i]))
+      cornames <- append(cornames, colnames(Patient_dataset[i]))
+
+    }
+
+  }
+}
+
+print("Features where Completewoundhealing causes a significant difference between groups: \n")
+print(cornames)
+
 #Selects significant features
 predictorset <- subset(Patient_dataset, select = c("Ageyears", "Nosmoking",
-                                            "Averagesystolicbloodpressure", "Averagediastolicbloodpressure", 
-                                            "AverageO2saturationlevel", "AverageserumHbA1c", "AverageserumHb", "AverageserumeGFR", 
+                                            "Averagesystolicbloodpressure", "Averagediastolicbloodpressure",
+                                            "AverageO2saturationlevel", "AverageserumHbA1c", "AverageserumHb", "AverageserumeGFR",
                                             "Woundlocation.Anterior_Tibial_Artery", "Woundlocation.Dorsalis_Pedis", "Woundlocation.Lateral_Calcaneal",
                                             "Woundlocation.Lateral_Plantar", "Woundlocation.Medial_Calcaneal", "Woundlocation.Medial_Plantar",
                                             "Woundlocation.Posterior_Tibial_Artery", "Toepressureaffectedside",
-                                            "Type1", "Texas1", "Texas2", "TexasA", "TexasB", "TexasC", "Neuropathic", 
+                                            "Type1", "Texas1", "Texas2", "TexasA", "TexasB", "TexasC", "Neuropathic",
                                             "Woundareameasurement",
                                             "Completewoundhealing"))
-
 
 #Performs feature transformation
 max_age <- max(predictorset$Ageyears)
@@ -139,7 +204,7 @@ if (IMP == TRUE){
     impdata <- data.frame(imputation$imp[name])
     median_vector <- apply(impdata, 1, median)
     weight_matrix <- 1/abs(impdata - median_vector)
-    weight_matrix[weight_matrix > 1] <- 2
+    weight_matrix[weight_matrix > 2] <- 2
     impute_list <- c()
     for (row in 1:nrow(impdata)){
       
@@ -174,7 +239,7 @@ if (BAL == TRUE){
   predictorset$Completewoundhealing <- as.numeric(predictorset$Completewoundhealing)
   
   
-  #Dataset validity tests (ask Veerle and Ester)
+  #Dataset validity tests
   predictorset <- predictorset[predictorset$Averagesystolicbloodpressure >= predictorset$Averagediastolicbloodpressure,] #check blood pressure
   predictorset <- predictorset[rowSums(predictorset[,c("Woundlocation.Anterior_Tibial_Artery", "Woundlocation.Dorsalis_Pedis", "Woundlocation.Lateral_Calcaneal",
                                                        "Woundlocation.Lateral_Plantar", "Woundlocation.Medial_Calcaneal", "Woundlocation.Medial_Plantar",
@@ -183,15 +248,13 @@ if (BAL == TRUE){
 
 }
 
+#changes characters to integers
+for (colname in names(predictorset)){
+  if (class(predictorset[,colname]) == "character"){
+    class(predictorset[,colname]) <- "numeric"
+  }
+}
+
 #export predictorset as a csv file
 directory <- dirname(normalizePath(path_excelfile))
-write.csv(predictorset, paste0(directory, "/predictorset.csv"), row.names = FALSE)
-
-
-
-
-
-
-
-
-
+write.csv(predictorset, paste0(directory, "/processed_data.csv"), row.names = FALSE)
