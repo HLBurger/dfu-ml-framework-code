@@ -28,7 +28,6 @@ dfu-ml-framework-code/
 │   ├── Neural_network.R                       # Code for neural network training, testing and saving.
 |   ├── Bayesian_additive_regression_trees.R   # Code for bayesian additive regression trees training, testing and saving.
 |   ├── predictions.R                          # Used for loading model and predicting out of sample patient healing. 
-│── example.Rmd       # Main script to run training and evaluation
 │── DESCRIPTION       # Dependencies
 │── README.md         # Documentation
 │── .gitignore        # Excludes unnecessary files from GitHub
