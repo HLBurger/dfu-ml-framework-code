@@ -29,7 +29,7 @@ library(class) #for k-nearest neighbor
 library("xgboost")#for extreme gradient boost
 
 
-New_patient$ï..Ageyears <- sqrt(max_age - New_patient$ï..Ageyears)
+New_patient$Ã¯..Ageyears <- sqrt(max_age - New_patient$Ã¯..Ageyears)
 New_patient$AverageO2saturationlevel <- sqrt(max_02 - New_patient$AverageO2saturationlevel)
 New_patient$AverageserumHbA1c <- log(New_patient$AverageserumHbA1c)
 New_patient$AverageserumeGFR <- sqrt(New_patient$AverageserumeGFR)
