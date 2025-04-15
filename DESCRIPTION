@@ -10,4 +10,21 @@ LazyData: true
 Imports:
     ggplot2,
     dplyr,
-    tidyr
+    tidyr,
+    BART,
+    caTools,
+    Metrics,
+    tidyverse,
+    fastDummies,
+    smotefamily,
+    mice,
+    heatmaply,
+    car,
+    xgboost,
+    class,
+    dcurves,
+    neuralnet,
+    e1071,
+    randomForest,
+    CalibrationCurves
+
