@@ -12,7 +12,25 @@ The dataset generated and analyzed during this study is not publicly available d
    git clone https://github.com/HLBurger/dfu-ml-framework-code.git
    cd dfu-ml-framework-code
 
-2. 
+2. Your project directory should look like this:
+
+```
+dfu-ml-framework-code/
+│── experiments/
+│   ├── Experiment Hidde.ipynb  # Jupyter Notebook you can copy and modify
+│   ├── experiment_x.ipynb  # Jupyter Notebook for a specific experiment# Another experiment
+│── src/
+│   ├── data.py        # Manages dataset processing, including loading and transforming images.
+│   ├── model.py       # Defines the convolutional neural network (CNN) architecture.
+│   ├── train.py       # Handles model training, including data loading, optimization, and logging.
+│   ├── evaluate.py    # Contains the script for evaluating the trained CNN model on the test dataset.
+│   ├── utils.py       # Includes helper functions such as visualization and metric calculations.
+│   ├── config.py      # Handles configuration settings such as device setup (CPU/GPU).
+│── main.py           # Main script to run training and evaluation
+│── requirements.txt  # Dependencies
+│── README.md         # Documentation
+│── .gitignore        # Excludes unnecessary files from GitHub
+```
   
 
 ## ** Install Dependencies **
