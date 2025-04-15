@@ -1,6 +1,6 @@
 Package: myrproject
 Type: Project
-Title: My R Project
+Title: dfu-ml-framework-code
 Version: 0.1.0
 Authors@R: person("HL", "Burger", role = c("aut", "cre"))
 Description: Description of the dfu-ml-framework-code repo.
