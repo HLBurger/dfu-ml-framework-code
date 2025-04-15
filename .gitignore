@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-Code_Senna 
+Code_Senna/
 
 # C extensions
 *.so

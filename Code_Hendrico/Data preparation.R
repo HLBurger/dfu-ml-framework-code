@@ -21,6 +21,8 @@ library(ggplot2)  #better viz in general
 library(smotefamily)#for smote balancing
 library(mice)     #for mice imputation
 library(dplyr)
+library("heatmaply") #correlation matrix visualization
+library("car")
 
 ############################################
 #Performs correctional tests on the data
@@ -177,6 +179,7 @@ predictorset <- subset(Patient_dataset, select = c("Ageyears", "Nosmoking",
                                             "Woundareameasurement",
                                             "Completewoundhealing"))
 
+
 #Performs feature transformation
 max_age <- max(predictorset$Ageyears)
 predictorset$Ageyears <- sqrt(max(predictorset$Ageyears) - predictorset$Ageyears)
@@ -191,12 +194,20 @@ predictorset$AverageserumeGFR <- sqrt(predictorset$AverageserumeGFR)
 predictorset$Woundareameasurement <- log(predictorset$Woundareameasurement)
 
 
+#creates correlation matrix + heatmap + vif checks
+cor_matrix <- cor(predictorset, use = "complete.obs")
+heatmaply(cor_matrix, Rowv = NA, Colv = NA, node_type = "scatter", point_size_mat = abs(cor_matrix), row_text_angle = 45, column_text_angle = 90)
+heatmaply(cor(predictorset, predictorset$Completewoundhealing, use = "complete.obs"), Rowv = NA, Colv = NA, node_type = "scatter", point_size_mat = abs(cor(predictorset, predictorset$Completewoundhealing, use = "complete.obs")))
+
+vif_model <- lm(Completewoundhealing ~ ., data = predictorset)
+vif(vif_model)
+
 ############################################
 #Performs imputation on data (optional)
 #Only if IMP = TRUE (see line 12)
 ############################################
 if (IMP == TRUE){
-  missing_names <- names(which(colSums(is.na(predictorset))>0))
+  missing_names <- names(which(colSums(is.na(predictorset)) > 0))
   imputation <- mice(predictorset[,missing_names], m = 50, method = c("midastouch"))
   
   #Validation for imputation of empty values
