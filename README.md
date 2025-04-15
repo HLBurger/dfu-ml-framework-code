@@ -1,9 +1,15 @@
-# Coding for ML implementation in a Diabetic Foot Ulcer Database
+# Coding for ML Implementation in a Diabetic Foot Ulcer Database
+This project contains the structure for statistical research and AI classification applied to the diabetes dataset. Currently, the code is in development and will be expended upon for ease of use. 
 
-This project contains the structure for statistical research and AI classification applied to the {diabetes dataset}. It can be used a general structure for a plethora of (future) applications such as the prediction of diabetic foot ulcera healing, or probability of amputation.
+## Dataset
+The dataset generated and analyzed during this study is not publicly available due to the protection of patient privacy. However, the dataset can be made available upon request from the corresponding author through a collaboration with the study team. 
 
-### Future project ideas
-- Create web application.
-- Code conversion to python if web application is run remotely.
-- Generalize code for ease of use.
-- Try hybrid models, neural networks when dataset it extended.
+## ** Install Dependencies **
+All required packages are listed in the `DESCRIPTION` file.
+You can either install each library manually or use the following code:
+```
+install.packages("devtools")
+devtools::install_deps()
+```
+
+
