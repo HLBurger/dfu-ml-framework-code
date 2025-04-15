@@ -16,18 +16,20 @@ The dataset generated and analyzed during this study is not publicly available d
 
 ```
 dfu-ml-framework-code/
-│── experiments/
-│   ├── Experiment Hidde.ipynb  # Jupyter Notebook you can copy and modify
-│   ├── experiment_x.ipynb  # Jupyter Notebook for a specific experiment# Another experiment
+│── visuals/
+│   ├── data_size.R                            # Visualization of performance increase over sample size.
+│   ├── decision_curve_analysis.R              # Visualization of clinical benefit over risk threshold of several prediction models.
 │── src/
-│   ├── data.py        # Manages dataset processing, including loading and transforming images.
-│   ├── model.py       # Defines the convolutional neural network (CNN) architecture.
-│   ├── train.py       # Handles model training, including data loading, optimization, and logging.
-│   ├── evaluate.py    # Contains the script for evaluating the trained CNN model on the test dataset.
-│   ├── utils.py       # Includes helper functions such as visualization and metric calculations.
-│   ├── config.py      # Handles configuration settings such as device setup (CPU/GPU).
-│── main.py           # Main script to run training and evaluation
-│── requirements.txt  # Dependencies
+│   ├── data_processing.R                      # Manages dataset processing, including transformations and correlation tests.
+│   ├── Logistic_regression.R                  # Code for logistic regression training, testing and saving.
+│   ├── K_nearest_neighbor.R                   # Code for k nearest neighbor training, testing and saving.
+│   ├── Support_vector_machine.R               # Code for support vector machine training, testing and saving.
+│   ├── Random_forest.R                        # Code for random forest training, testing and saving.
+│   ├── Neural_network.R                       # Code for neural network training, testing and saving.
+|   ├── Bayesian_additive_regression_trees.R   # Code for bayesian additive regression trees training, testing and saving.
+|   ├── predictions.R                          # Used for loading model and predicting out of sample patient healing. 
+│── example.R          # Main script to run training and evaluation
+│── DESCRIPTION.txt   # Dependencies
 │── README.md         # Documentation
 │── .gitignore        # Excludes unnecessary files from GitHub
 ```
