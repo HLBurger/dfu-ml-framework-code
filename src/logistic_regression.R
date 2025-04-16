@@ -115,4 +115,4 @@ write.csv(metrics, "metrics_results_LR.csv", row.names = FALSE)
 
 #save the model for further use
 directory <- dirname(normalizePath(url_excelfile))
-saveRDS(LinearModel, file = paste0(directory, "/LR_model.rds"))
+saveRDS(LinearModel, file = paste0(directory, "/models/LR_model.rds"))

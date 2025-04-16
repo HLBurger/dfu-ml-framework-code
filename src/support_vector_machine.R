@@ -154,4 +154,4 @@ write.csv(metrics, "metrics_results_SVM.csv", row.names = FALSE)
 
 #save the model for further use
 directory <- dirname(normalizePath(url_excelfile))
-saveRDS(SupportVectorMachine, file = paste0(directory, "/SVM_model.rds"))
+saveRDS(SupportVectorMachine, file = paste0(directory, "/models/SVM_model.rds"))

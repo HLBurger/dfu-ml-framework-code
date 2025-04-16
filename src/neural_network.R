@@ -140,4 +140,4 @@ write.csv(metrics, "metrics_results_ANN.csv", row.names = FALSE)
 
 #save the model for further use
 directory <- dirname(normalizePath(url_excelfile))
-saveRDS(model_MLP, file = paste0(directory, "/ANN_model.rds"))
+saveRDS(model_MLP, file = paste0(directory, "/models/NN_model.rds"))
