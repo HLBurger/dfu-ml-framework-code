@@ -7,12 +7,9 @@
 
 ########################################################################
 
-#install.packages("caTools")
-#install.packages("xgboost")
-
 url_excelfile <- "processed_data.csv"
 New_patient <- read.csv2(url_excelfile, sep = ',')
-Mpath <- "logistic_regression_model.rds"
+Mpath <- "models/logistic_regression_model.rds"
 
 
 #changes characters to integers
