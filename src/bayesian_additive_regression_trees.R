@@ -48,6 +48,10 @@ for (i in 1:1000){
 plot(sapply(comb, function(tuple)  tuple[1]), sapply(comb, function(tuple) tuple[length(tuple)]), main = "Model accuracy compared to amount of iterations",
      xlab = "Nrounds of iterations", ylab = "General model accuracy")
 
+best_hyperparameters <- comb[[which.max((sapply(comb, function(x) x[length(x)])))]]
+ntree <- best_hyperparameters[1]
+nskip <- best_hyperparameters[2]
+
 ####################################################################
 #Code for average performance over 1000 iterations
 ####################################################################
@@ -67,7 +71,7 @@ for (i in 1:1000){
     y_test <- as.matrix(test$Completewoundhealing)
     X_test <- as.matrix(subset(test, select = -c(Completewoundhealing)))
 
-    bart_model <- pbart(X_train, y_train, X_test)
+    bart_model <- pbart(X_train, y_train, X_test, ntree = ntree, nskip = nskip)
     # Normalize z-values into probabilities
     bart_model$prob.test <- pnorm(bart_model$yhat.test)
     bart_model$prob.test.mean <- apply(bart_model$prob.test, 2, mean)
@@ -118,7 +122,7 @@ for (n in 1:10) {
     y_test <- as.matrix(test$Completewoundhealing)
     X_test <- as.matrix(subset(test, select = -c(Completewoundhealing)))
 
-    bart_model <- pbart(X_train, y_train, X_test)
+    bart_model <- pbart(X_train, y_train, X_test, ntree = ntree, nskip = nskip)
     # Normalize z-values into probabilities
     bart_model$prob.test <- pnorm(bart_model$yhat.test)
     bart_model$prob.test.mean <- apply(bart_model$prob.test, 2, mean)
@@ -156,7 +160,8 @@ write.csv(metrics, "metrics_results_BART.csv", row.names = FALSE)
 
 #save the model for further use
 directory <- dirname(normalizePath(url_excelfile))
-saveRDS(bart_model, file = paste0(directory, "/BART_model.rds"))
+saveRDS(bart_model, file = paste0(directory, "/models/BART_model.rds"))
+
 
 ####################################################################
 #Density plot for paper

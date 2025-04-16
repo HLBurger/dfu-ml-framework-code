@@ -201,4 +201,4 @@ write.csv(metrics, "metrics_results_XGBoost.csv", row.names = FALSE)
 
 #save the model for further use
 directory <- dirname(normalizePath(url_excelfile))
-saveRDS(XGmodel, file = paste0(directory, "/Extreme_gradient_model.rds"))
+saveRDS(XGBoost, file = paste0(directory, "/models/Extreme_gradient_model.rds"))

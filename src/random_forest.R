@@ -3,7 +3,7 @@
 #install the required packages if not yet done
 ########################################################################
 
-url_excelfile <- "Code_Hendrico/processed_data.csv"
+url_excelfile <- "processed_data.csv"
 predictorset <- read.csv2(url_excelfile, sep = ',')
 
 library("caTools") #for sampling train/test set
@@ -159,5 +159,5 @@ write.csv(metrics, "metrics_results_RF.csv", row.names = FALSE)
 
 #save the model for further use
 directory <- dirname(normalizePath(url_excelfile))
-saveRDS(Randommodel, file = paste0(directory, "/Random_forest_model.rds"))
+saveRDS(randomforest, file = paste0(directory, "/models/Random_forest_model.rds"))
 

@@ -3,7 +3,7 @@
 #install the required packages if not yet done
 ########################################################################
 
-url_excelfile <- "Code_Hendrico/processed_data.csv"
+url_excelfile <- "processed_data.csv"
 predictorset <- read.csv2(url_excelfile, sep = ',')
 
 library("caTools") #for sampling train/test set
@@ -36,7 +36,7 @@ for (i in 1:200){
   Confusion_matrix <- table(K_nearest, y_test)
   
   acc <- round((mean(Confusion_matrix[1]) + mean(Confusion_matrix[4]))/sum(mean(Confusion_matrix[1] + Confusion_matrix[2] + Confusion_matrix[3] + Confusion_matrix[4])), 3)
-  comb <- c(comb, list(c(k, acc)))
+  comb <- c(comb, list(c(k, acc, recall)))
 }
 
 #k-neighbors hyperparameter
@@ -140,4 +140,4 @@ write.csv(metrics, "metrics_results_KNN.csv", row.names = FALSE)
 
 #save the model for further use
 directory <- dirname(normalizePath(url_excelfile))
-saveRDS(K_nearest, file = paste0(directory, "/KNN_model.rds"))
+saveRDS(K_nearest, file = paste0(directory, "/models/KNN_model.rds"))

@@ -10,9 +10,9 @@
 #install.packages("caTools")
 #install.packages("xgboost")
 
-url_excelfile <- "C:/Users/hburger/Downloads/predictorset.csv"
+url_excelfile <- "processed_data.csv"
 New_patient <- read.csv2(url_excelfile, sep = ',')
-Mpath <- "C:/Users/hburger/Downloads/logistic_regression_model.rds" 
+Mpath <- "logistic_regression_model.rds"
 
 
 #changes characters to integers
