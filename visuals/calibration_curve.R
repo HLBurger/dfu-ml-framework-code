@@ -8,7 +8,6 @@ for (colname in names(predictorset)){
   }
 }
 
-library(CalibrationCurves)
 library("caTools")
 library(class) #for k-nearest neighbor
 library(ggplot2)
@@ -96,24 +95,7 @@ cal_data <- data.frame(
   `Artificial neural networks` = NN_pred
 )
 
-cal_data_bins <- cal_data %>%
-  mutate(
-    across(
-      c(Logistic.regression, K.nearest.neighbor, Support.vector.machine,
-        Random.forest, Extreme.gradient.boost,
-        Bayesian.additive.regression.trees, Artificial.neural.networks
-      ),
-      ~ cut(., breaks = seq(0, 1, by = 0.1),
-        include.lowest = TRUE, .names = "bin_{.col}"
-      )
-    )
-  )
-
-
-cal_data <- data.frame(cal_data, cal_data_bins)
-cal_data$Completewoundhealing.1 <- NULL
-
-test <- cal_data %>%
+cal_data_long <- cal_data %>%
   pivot_longer(
     cols = c(Logistic.regression, K.nearest.neighbor, Support.vector.machine,
       Random.forest, Extreme.gradient.boost,
@@ -123,7 +105,7 @@ test <- cal_data %>%
     values_to = "prob"
   )
 
-plot_data <- test %>%
+plot_data <- cal_data_long %>%
   mutate(bin = cut(prob, breaks = seq(0, 1, by = 0.1), include.lowest = TRUE)) %>%
   group_by(model, bin) %>%
   summarise(
@@ -133,45 +115,40 @@ plot_data <- test %>%
   )
 
 ggplot(plot_data, aes(x = mean_pred, y = obs_freq, color = model)) +
-  geom_line() +
+  geom_line(size = 0.75) +
   geom_point() +
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray") +
-  labs(title = "Calibration Curves for All Models",
-       x = "Mean Predicted Probability",
-       y = "Observed Frequency") +
-  theme_minimal()
-
-plot(dca_results) +
-  theme_minimal(
-    base_family = "serif"
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
+  labs(
+    x = "Mean Predicted Probability",
+    y = "Observed Frequency"
   ) +
-  scale_color_manual(values = c(
-    "Treat All" = "green",
-    "Treat None" = "red",
-    "K.nearest.neighbor" = "#56B4E9",
-    "Logistic.regression" = "#E69F00",
-    "Random.forest" = "#009E73",
-    "Support.vector.machine" = "#D55E00",
-    "Extreme.gradient.boost" = "#CC79A7",
-    "Bayesian.additive.regression.trees" = "#999999",
-    "Artificial.neural.networks" = "#a81d0d"
-  ), labels = c(
-    "Treat All" = "Treat All",
-    "Treat None" = "Treat None",
-    "Artificial.neural.networks" = "Artificial neural networks",
-    "Bayesian.additive.regression.trees" = "Bayesian additive regression trees",
-    "Extreme.gradient.boost" = "Extreme gradient boost",
-    "K.nearest.neighbor" = "K nearest neighbor",
-    "Logistic.regression" = "Logistic regression",
-    "Random.forest" = "Random forest",
-    "Support.vector.machine" = "Support vector machine"
-  )) +
+  theme_minimal(base_family = "serif") +
+  scale_color_manual(
+    values = c(
+      "K.nearest.neighbor" = "#56B4E9",
+      "Logistic.regression" = "#E69F00",
+      "Random.forest" = "#009E73",
+      "Support.vector.machine" = "#D55E00",
+      "Extreme.gradient.boost" = "#CC79A7",
+      "Bayesian.additive.regression.trees" = "#999999",
+      "Artificial.neural.networks" = "#a81d0d"
+    ),
+    labels = c(
+      "Artificial.neural.networks" = "Artificial neural networks",
+      "Bayesian.additive.regression.trees" = "Bayesian additive regression trees",
+      "Extreme.gradient.boost" = "Extreme gradient boost",
+      "K.nearest.neighbor" = "K nearest neighbor",
+      "Logistic.regression" = "Logistic regression",
+      "Random.forest" = "Random forest",
+      "Support.vector.machine" = "Support vector machine"
+    )
+  ) +
   theme(
     strip.text = element_text(size = 10),
     axis.title = element_text(size = 10),
     axis.text = element_text(size = 10),
     legend.title = element_blank(),
-    legend.position = c(0.83, 0.79),
+    legend.position = c(0.20, 0.85),
     legend.box = "horizon",
     legend.text = element_text(size = 10),
     panel.spacing = unit(1, "lines"),
@@ -179,4 +156,5 @@ plot(dca_results) +
     plot.caption.position = "plot"
   )
 
-ggsave("DCA_plot.png", width = 6.667, height = 5.334, dpi = 300)
+
+ggsave("CC_plot.png", width = 6.667, height = 5.334, dpi = 300)
