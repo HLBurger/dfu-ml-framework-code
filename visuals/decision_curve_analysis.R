@@ -1,4 +1,4 @@
-url_excelfile <- "Code_Hendrico/predictorset.csv"
+url_excelfile <- "processed_data.csv"
 predictorset <- read.csv2(url_excelfile, sep = ',')
 
 #changes characters to integers
@@ -9,7 +9,6 @@ for (colname in names(predictorset)){
 }
 
 library(dcurves)
-library(CalibrationCurves)
 library("caTools")
 library(class) #for k-nearest neighbor
 library(ggplot2)
@@ -18,6 +17,7 @@ library("randomForest")#for random forest algorithm
 library("xgboost")#for extreme gradient boost
 library(BART)
 library(neuralnet)
+library(dplyr)
 
 sample0 <- sample.split(predictorset[predictorset$Completewoundhealing == 0,]$Completewoundhealing, SplitRatio = .7)
 sample1 <- sample.split(predictorset[predictorset$Completewoundhealing == 1,]$Completewoundhealing, SplitRatio = .7)
@@ -94,16 +94,6 @@ dca_data <- data.frame(
   `Bayesian additive regression trees` = bart_pred,
   `Artificial neural networks` = NN_pred
 )
-
-
-#Calibration curve for the SVM
-cal_curve_svm <- val.prob.ci.2(
-  dca_data$Support.vector.machine,
-  dca_data$Completewoundhealing,
-  logistic.cal = TRUE,
-  smooth = "none"
-)
-
 
 dca_data <- 1 - dca_data
 

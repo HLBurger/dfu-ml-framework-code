@@ -18,6 +18,7 @@ library(BART)
 library(neuralnet)
 library(dplyr)
 library(tidyr)
+library(DescTools)
 
 sample0 <- sample.split(predictorset[predictorset$Completewoundhealing == 0,]$Completewoundhealing, SplitRatio = .7)
 sample1 <- sample.split(predictorset[predictorset$Completewoundhealing == 1,]$Completewoundhealing, SplitRatio = .7)
@@ -95,6 +96,39 @@ cal_data <- data.frame(
   `Artificial neural networks` = NN_pred
 )
 
+brier_scores <- c()
+for (model_name in names(cal_data)[-1]) {
+  brier_score <- BrierScore(
+    cal_data$Completewoundhealing,
+    cal_data[[model_name]]
+  )
+  cat(sprintf("%s Brier Score: %.4f\n", model_name, brier_score))
+  brier_scores$model
+  brier_scores[[model_name]] <- brier_score
+}
+
+brier_df <- data.frame(
+  model = names(brier_scores),
+  brierScore = unlist(brier_scores)
+)
+
+ml_names <- c(
+  "Artificial.neural.networks" = "Artificial neural networks",
+  "Bayesian.additive.regression.trees" = "Bayesian additive regression trees",
+  "Extreme.gradient.boost" = "Extreme gradient boost",
+  "K.nearest.neighbor" = "K nearest neighbor",
+  "Logistic.regression" = "Logistic regression",
+  "Random.forest" = "Random forest",
+  "Support.vector.machine" = "Support vector machine"
+)
+
+brier_df$model <- ml_names[brier_df$model]
+
+brier_text <- paste0(
+  "Brier Scores:\n",
+  paste(brier_df$model, round(brier_df$brierScore, 3), sep = ": ", collapse = "\n")
+)
+
 cal_data_long <- cal_data %>%
   pivot_longer(
     cols = c(Logistic.regression, K.nearest.neighbor, Support.vector.machine,
@@ -115,7 +149,7 @@ plot_data <- cal_data_long %>%
   )
 
 ggplot(plot_data, aes(x = mean_pred, y = obs_freq, color = model)) +
-  geom_line(size = 0.75) +
+  geom_line(size = 0.75, alpha = 0.8) +
   geom_point() +
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
   labs(
@@ -133,15 +167,7 @@ ggplot(plot_data, aes(x = mean_pred, y = obs_freq, color = model)) +
       "Bayesian.additive.regression.trees" = "#999999",
       "Artificial.neural.networks" = "#a81d0d"
     ),
-    labels = c(
-      "Artificial.neural.networks" = "Artificial neural networks",
-      "Bayesian.additive.regression.trees" = "Bayesian additive regression trees",
-      "Extreme.gradient.boost" = "Extreme gradient boost",
-      "K.nearest.neighbor" = "K nearest neighbor",
-      "Logistic.regression" = "Logistic regression",
-      "Random.forest" = "Random forest",
-      "Support.vector.machine" = "Support vector machine"
-    )
+    labels = ml_names
   ) +
   theme(
     strip.text = element_text(size = 10),
