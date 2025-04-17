@@ -1,4 +1,4 @@
-# Coding for ML model Implementation in a Diabetic Foot Ulcer Database
+# Coding for ML Model Implementation in a Diabetic Foot Ulcer Database
 This project contains the structure for statistical research and AI classification applied to the diabetic foot ulcer dataset. Currently, the code is in development and will be expended upon for ease of use. 
 
 ## Dataset
