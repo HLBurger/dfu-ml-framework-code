@@ -159,5 +159,5 @@ write.csv(metrics, "metrics_results_RF.csv", row.names = FALSE)
 
 #save the model for further use
 directory <- dirname(normalizePath(url_excelfile))
-saveRDS(randomforest, file = paste0(directory, "/models/Random_forest_model.rds"))
+saveRDS(randomforest, file = paste0(directory, "/models/RF_model.rds"))
 
