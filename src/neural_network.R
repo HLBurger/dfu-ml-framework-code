@@ -11,6 +11,7 @@ library(neuralnet)
 library("caTools") #for sampling train/test set
 library(ggplot2)
 library(Metrics)
+library("DescTools")
 
 numeric_cols <- c("Ageyears", "Averagesystolicbloodpressure",
                   "Averagediastolicbloodpressure", "AverageO2saturationlevel",
@@ -21,6 +22,7 @@ conf2 <- c()
 conf3 <- c()
 conf4 <- c()
 auc <- c()
+brier <- c()
 
 ####################################################################
 #Code for average performance over 200 iterations
@@ -57,6 +59,7 @@ for (i in 1:200){
   conf3 <- append(conf3, conf_matrix_MLP[3])
   conf4 <- append(conf4, conf_matrix_MLP[4])
   auc <- append(auc, auc(y_test, predictions_MLP))
+  brier <- append(brier, BrierScore(y_test, predicted_probabilities_MLP[, 2]))
 }
 
 print(paste0("specificity: ", round(mean(conf1)/(mean(conf1) + mean(conf2)), 3)) )

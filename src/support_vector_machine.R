@@ -10,6 +10,7 @@ library("caTools") #for sampling train/test set
 library(ggplot2)  #better viz in general
 library("e1071") #for support vector classifier
 library(Metrics)
+library("DescTools")
 
 comb <- list()
 degree_vector <- c(1:5)
@@ -67,25 +68,28 @@ conf1 <- c()
 conf2 <- c()
 conf3 <- c()
 conf4 <- c()
+brier <- c()
 for (i in 1:1000){
   sample0 <- sample.split(predictorset[predictorset$Completewoundhealing == 0,]$Completewoundhealing, SplitRatio = .7)
   sample1 <- sample.split(predictorset[predictorset$Completewoundhealing == 1,]$Completewoundhealing, SplitRatio = .7)
   sample <- append(sample0, sample1)
   train <- subset(predictorset, sample == TRUE)
   test <- subset(predictorset, sample == FALSE)
-  y_train <- train$Completewoundhealing
+  y_train <- as.factor(train$Completewoundhealing)
   X_train <- subset(train, select = -c(Completewoundhealing))
-  y_test <- test$Completewoundhealing
+  y_test <- as.factor(test$Completewoundhealing)
   X_test <- subset(test, select = -c(Completewoundhealing))
-  
-  SupportVectorMachine <- svm(x = X_train, y = y_train, cost = cost, degree = degree, gamma = gamma, type = "C-classification")
-  
-  prediction <- predict(SupportVectorMachine, X_test )
-  Confusion_matrix <- table(prediction, y_test)
+
+  SupportVectorMachine <- svm(x = X_train, y = y_train, cost = cost, degree = degree, gamma = gamma, probability = TRUE)
+  prediction <- predict(SupportVectorMachine, X_test, probability = TRUE)
+  prediction <- attr(prediction, "probabilities")[, "1"]
+
+  Confusion_matrix <- table(round(prediction), y_test)
   conf1 <- append(conf1, Confusion_matrix[1])
   conf2 <- append(conf2, Confusion_matrix[2])
   conf3 <- append(conf3, Confusion_matrix[3])
   conf4 <- append(conf4, Confusion_matrix[4])
+  brier <- append(brier, BrierScore(as.numeric(y_test) - 1, prediction))
 }
 print(paste0("specificity: ", round(mean(conf1)/(mean(conf1) + mean(conf2)), 3)) )
 print(paste0("Overall Accuracy: ", round((mean(conf1) + mean(conf4))/sum(mean(conf1 + conf2 + conf3 + conf4)), 3)) )

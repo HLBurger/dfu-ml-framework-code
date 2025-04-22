@@ -10,6 +10,7 @@ library("caTools") #for sampling train/test set
 library(ggplot2)  #better viz in general
 library(Metrics)
 library(dcurves)
+library("DescTools")
 
 comb <- list()
 conf1 <- c()
@@ -17,7 +18,7 @@ conf2 <- c()
 conf3 <- c()
 conf4 <- c()
 coef_list <- list()
-
+brier <- c()
 ####################################################################
 #Code for average performance over 1000 iterations
 ####################################################################
@@ -39,6 +40,7 @@ for (i in 1:1000){
   conf3 <- append(conf3, Confusion_matrix[3])
   conf4 <- append(conf4, Confusion_matrix[4])
   coef_list <- append(coef_list, c(list(coef(LinearModel))))
+  brier <- append(brier, BrierScore(as.numeric(y_test) - 1, prediction))
 }
 
 coef_list <- lapply(coef_list, function(x) replace(x, is.na(x), 0))

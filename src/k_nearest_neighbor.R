@@ -10,7 +10,7 @@ library("caTools") #for sampling train/test set
 library(ggplot2)  #better viz in general
 library(class) #for k-nearest neighbor
 library(Metrics)
-
+library("DescTools")
 
 
 comb <- list()
@@ -53,6 +53,7 @@ conf1 <- c()
 conf2 <- c()
 conf3 <- c()
 conf4 <- c()
+brier <- c()
 for (i in 1:1000){
   sample0 <- sample.split(predictorset[predictorset$Completewoundhealing == 0,]$Completewoundhealing, SplitRatio = .7)
   sample1 <- sample.split(predictorset[predictorset$Completewoundhealing == 1,]$Completewoundhealing, SplitRatio = .7)
@@ -72,6 +73,7 @@ for (i in 1:1000){
   conf2 <- append(conf2, Confusion_matrix[2])
   conf3 <- append(conf3, Confusion_matrix[3])
   conf4 <- append(conf4, Confusion_matrix[4])
+  brier <- append(brier, BrierScore(y_test, prediction))
 }
 print(paste0("specificity: ", round(mean(conf1)/(mean(conf1) + mean(conf2)), 3)) )
 print(paste0("Overall Accuracy: ", round((mean(conf1) + mean(conf4))/sum(mean(conf1 + conf2 + conf3 + conf4)), 3)) )

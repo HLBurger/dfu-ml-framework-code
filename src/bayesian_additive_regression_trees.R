@@ -11,6 +11,7 @@ library(BART)
 library("caTools") #for sampling train/test set
 library(ggplot2)
 library(Metrics)
+library("DescTools")
 
 comb <- list()
 n_tree_vector <- c(seq(10, 100, 10))
@@ -60,6 +61,7 @@ conf2 <- c()
 conf3 <- c()
 conf4 <- c()
 auc <- c()
+brier <- c()
 for (i in 1:1000){
     sample0 <- sample.split(predictorset[predictorset$Completewoundhealing == 0,]$Completewoundhealing, SplitRatio = .7)
     sample1 <- sample.split(predictorset[predictorset$Completewoundhealing == 1,]$Completewoundhealing, SplitRatio = .7)
@@ -85,12 +87,15 @@ for (i in 1:1000){
     conf3 <- append(conf3, Confusion_matrix[3])
     conf4 <- append(conf4, Confusion_matrix[4])
     auc <- append(auc, auc(y_test, round(predictions$prob.test.mean)) )
+    brier <- append(brier, BrierScore(y_test, predictions$prob.test.mean))
 }
 print(paste0("specificity: ", round(mean(conf1)/(mean(conf1) + mean(conf2)), 3)) )
 print(paste0("Overall Accuracy: ", round((mean(conf1) + mean(conf4))/sum(mean(conf1 + conf2 + conf3 + conf4)), 3)) )
 print(paste0("Precision: ", round((mean(conf4)/(mean(conf2) + mean(conf4))), 3)) )
 print(paste0("Recall: ", round(mean(conf4)/(mean(conf4) + mean(conf3)), 3)) )
 
+mean(brier) + 3*sd(brier)
+mean(brier) - 3*sd(brier)
 
 ####################################################################
 #Code for metric increase over size
@@ -104,7 +109,8 @@ metrics <- data.frame(
   precision = numeric(),
   recall = numeric(),
   auc = numeric(),
-  specificity = numeric()
+  specificity = numeric(),
+  brier = numeric()
 )
 for (n in 1:10) {
   for (i in 1:100){
@@ -141,6 +147,7 @@ for (n in 1:10) {
     recall <- ifelse(tp + fn > 0, tp / (tp + fn), NA)
     specificity <- ifelse(tn + fp > 0, tn / (tn + fp), NA)
     auc <- auc(y_test, prediction)
+    brier <- BrierScore(y_test, predictions)
 
     # Store metrics
     metrics <- rbind(metrics, data.frame(
@@ -150,7 +157,8 @@ for (n in 1:10) {
       precision = precision,
       recall = recall,
       auc = auc,
-      specificity = specificity
+      specificity = specificity,
+      brier = brier
     ))
   }
 }

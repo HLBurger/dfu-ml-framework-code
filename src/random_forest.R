@@ -10,6 +10,7 @@ library("caTools") #for sampling train/test set
 library(ggplot2)  #better viz in general
 library("randomForest")#for random forest algorithm
 library(Metrics)
+library("DescTools")
 
 comb <- list()
 N_treeVector <- c(seq(10, 300, 10))
@@ -29,9 +30,9 @@ for (i in 1:1000){
   sample <- append(sample0, sample1)
   train <- subset(predictorset, sample == TRUE)
   test <- subset(predictorset, sample == FALSE)
-  y_train <- as.matrix(train$Completewoundhealing)
+  train$Completewoundhealing <- as.factor(train$Completewoundhealing)
   X_train <- as.matrix(subset(train, select = -c(Completewoundhealing)))
-  y_test <- test$Completewoundhealing
+  y_test <- as.factor(test$Completewoundhealing)
   X_test <- subset(test, select = -c(Completewoundhealing))
   
   randomforest <- randomForest(as.factor(Completewoundhealing) ~ ., data = train, ntree = ntree, mtry = mtry, max_depth = max_depth )
@@ -65,25 +66,27 @@ conf1 <- c()
 conf2 <- c()
 conf3 <- c()
 conf4 <- c()
+brier <- c()
 for (i in 1:1000){
   sample0 <- sample.split(predictorset[predictorset$Completewoundhealing == 0,]$Completewoundhealing, SplitRatio = .7)
   sample1 <- sample.split(predictorset[predictorset$Completewoundhealing == 1,]$Completewoundhealing, SplitRatio = .7)
   sample <- append(sample0, sample1)
-  train = subset(predictorset, sample == TRUE)
-  test = subset(predictorset, sample == FALSE)
-  
-  y_test <- test$Completewoundhealing
+  train <- subset(predictorset, sample == TRUE)
+  test <- subset(predictorset, sample == FALSE)
+  train$Completewoundhealing <- as.factor(train$Completewoundhealing)
+  y_test <- as.factor(test$Completewoundhealing)
   X_test <- subset(test, select = -c(Completewoundhealing))
   
   randomforest <- randomForest(as.factor(Completewoundhealing) ~ ., data = train, ntree = ntree, mtry = mtry, max_depth = max_depth )
-  prediction <- predict(randomforest, X_test, type = "response")
-  Confusion_matrix <- table(prediction, y_test)
+  prediction <- predict(randomforest, X_test, type = "prob", probability = TRUE)[, 2]
+  Confusion_matrix <- table(round(prediction), y_test)
   importance_list <- c(importance_list, list(randomforest$importance))
   
   conf1 <- append(conf1, Confusion_matrix[1])
   conf2 <- append(conf2, Confusion_matrix[2])
   conf3 <- append(conf3, Confusion_matrix[3])
   conf4 <- append(conf4, Confusion_matrix[4])
+  brier <- append(brier, BrierScore(as.numeric(y_test) - 1, prediction))
 }
 
 importance_list <- sapply(seq_along(importance_list[[1]]), function(i) mean(sapply(importance_list, '[', i)))
